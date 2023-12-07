@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
 import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
 import 'package:radiounicorn/screens/homescreen.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,6 +14,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
     FlutterRadioPlayer flutterRadioPlayer = FlutterRadioPlayer();
     return MultiBlocProvider(
       providers: [
@@ -20,7 +26,6 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               PlayingCubit(flutterRadioPlayer: flutterRadioPlayer),
         ),
- 
       ],
       child: MaterialApp(
         title: 'radio unicorn',

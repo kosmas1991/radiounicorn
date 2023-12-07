@@ -7,7 +7,6 @@ import 'package:flutter_radio_player/models/frp_source_modal.dart';
 import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
 import 'dart:async';
-
 import 'package:transparent_image/transparent_image.dart';
 
 class Player extends StatefulWidget {
@@ -48,7 +47,10 @@ class _PlayerState extends State<Player> {
     return Center(
       child: Container(
           margin: EdgeInsets.all(20),
-          decoration: BoxDecoration(color: Colors.black54),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(5),
+          ),
           padding: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -62,7 +64,11 @@ class _PlayerState extends State<Player> {
               SizedBox(
                 height: 10,
               ),
-              PlayButtonAndVolume()
+              PlayButtonAndVolume(),
+              SizedBox(
+                height: 0,
+              ),
+              SongHistoryButton(),
             ],
           )),
     );
@@ -150,6 +156,24 @@ class _PlayerState extends State<Player> {
           'volume',
           style: TextStyle(color: Colors.white),
         )
+      ],
+    );
+  }
+
+  Widget SongHistoryButton() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        TextButton.icon(
+            onPressed: () {},
+            icon: Icon(
+              Icons.history,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Song History',
+              style: TextStyle(color: Colors.white),
+            )),
       ],
     );
   }
