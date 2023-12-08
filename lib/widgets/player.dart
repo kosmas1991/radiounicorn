@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_radio_player/models/frp_source_modal.dart';
 import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
+import 'package:radiounicorn/cubits/volume/volume_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
@@ -18,6 +20,7 @@ class Player extends StatefulWidget {
 }
 
 class _PlayerState extends State<Player> {
+  double volume = 0.5;
   late Future<MusicData> musicData;
   final FRPSource frpSource = FRPSource(
     mediaSources: <MediaSources>[
@@ -39,7 +42,7 @@ class _PlayerState extends State<Player> {
 
   @override
   Widget build(BuildContext context) {
-    Timer.periodic(Duration(seconds: 20), (timer) {
+    Timer.periodic(Duration(seconds: 60), (timer) {
       setState(() {
         musicData = fetching();
       });
@@ -122,6 +125,7 @@ class _PlayerState extends State<Player> {
                     Text(
                       '${snapshot.data!.nowPlaying!.song!.artist}',
                       style: TextStyle(color: Colors.white, fontSize: 15),
+                      overflow: TextOverflow.clip,
                     ),
                   ],
                 )
@@ -152,10 +156,32 @@ class _PlayerState extends State<Player> {
                 ));
           },
         ),
-        Text(
-          'volume',
-          style: TextStyle(color: Colors.white),
-        )
+        Row(
+          children: [
+            Icon(
+              Icons.volume_mute,
+              color: Colors.grey,
+              size: 20,
+            ),
+            BlocBuilder<VolumeCubit, VolumeState>(
+              builder: (context, state) {
+                return Slider(
+                  activeColor: Colors.grey,
+                  value: state.volume,
+                  onChanged: (value) {
+                    context.read<VolumeCubit>().setNewVolume(value);
+                    widget.flutterRadioPlayer.setVolume(state.volume);
+                  },
+                );
+              },
+            ),
+            Icon(
+              Icons.volume_up,
+              color: Colors.grey,
+              size: 20,
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -165,7 +191,15 @@ class _PlayerState extends State<Player> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         TextButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AlertDialog(
+                      content: Text('data'),
+                    ),
+                  ));
+            },
             icon: Icon(
               Icons.history,
               color: Colors.white,

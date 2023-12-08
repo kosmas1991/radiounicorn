@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_radio_player/flutter_radio_player.dart';
 import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
+import 'package:radiounicorn/cubits/volume/volume_cubit.dart';
 import 'package:radiounicorn/screens/homescreen.dart';
 import 'package:flutter/services.dart';
 
@@ -26,13 +27,13 @@ class MyApp extends StatelessWidget {
           create: (context) =>
               PlayingCubit(flutterRadioPlayer: flutterRadioPlayer),
         ),
+        BlocProvider(
+          create: (context) => VolumeCubit(),
+        ),
       ],
       child: MaterialApp(
         title: 'radio unicorn',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
+        theme: ThemeData(),
         home: HomeScreen(flutterRadioPlayer: flutterRadioPlayer),
       ),
     );
