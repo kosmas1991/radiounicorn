@@ -91,6 +91,7 @@ class _PlayerState extends State<Player> {
   }
 
   Widget ImageAndTitle() {
+    double screenWidth = MediaQuery.of(context).size.width;
     return FutureBuilder<MusicData>(
         future: musicData,
         builder: (context, snapshot) {
@@ -115,12 +116,18 @@ class _PlayerState extends State<Player> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${snapshot.data!.nowPlaying!.song!.title}',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
+                    Container(
+                      width: screenWidth*5/9,
+                      child: Text(
+                        '${snapshot.data!.nowPlaying!.song!.title}',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.fade,
+                        maxLines: 2,
+                        softWrap: false,
+                      ),
                     ),
                     Text(
                       '${snapshot.data!.nowPlaying!.song!.artist}',
@@ -174,7 +181,6 @@ class _PlayerState extends State<Player> {
                       if (value == 'PLAYING') {
                         context.read<PlayingCubit>().emitNewState(true);
                       }
-                      
                     });
                     context.read<VolumeCubit>().setNewVolume(value);
                     widget.flutterRadioPlayer.setVolume(state.volume);
@@ -199,13 +205,27 @@ class _PlayerState extends State<Player> {
       children: [
         TextButton.icon(
             onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AlertDialog(
-                      content: Text('data'),
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    scrollable: true,
+                    backgroundColor: Colors.black87,
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Song History',
+                          style: TextStyle(color: Colors.white, fontSize: 20),
+                        ),
+                        Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 20,
+                        )
+                      ],
                     ),
-                  ));
+                    content: Container()),
+              );
             },
             icon: Icon(
               Icons.history,
