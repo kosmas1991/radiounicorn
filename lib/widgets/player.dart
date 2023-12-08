@@ -42,7 +42,7 @@ class _PlayerState extends State<Player> {
 
   @override
   Widget build(BuildContext context) {
-    Timer.periodic(Duration(seconds: 60), (timer) {
+    Timer.periodic(Duration(seconds: 30), (timer) {
       setState(() {
         musicData = fetching();
       });
@@ -169,6 +169,13 @@ class _PlayerState extends State<Player> {
                   activeColor: Colors.grey,
                   value: state.volume,
                   onChanged: (value) {
+                    widget.flutterRadioPlayer.getPlaybackState().then((value) {
+                      print('DA      STATE    IS    :   ${value}');
+                      if (value == 'PLAYING') {
+                        context.read<PlayingCubit>().emitNewState(true);
+                      }
+                      
+                    });
                     context.read<VolumeCubit>().setNewVolume(value);
                     widget.flutterRadioPlayer.setVolume(state.volume);
                   },

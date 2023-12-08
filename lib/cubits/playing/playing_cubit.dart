@@ -13,9 +13,9 @@ class PlayingCubit extends Cubit<PlayingState> {
     playStreamSubscription = flutterRadioPlayer.frpEventStream!.listen((event) {
       if (event!.contains('playing')) {
         emit(state.copyWith(playing: true));
-      }else if(event.contains('loading')){
+      } else if (event.contains('loading')) {
         emit(state.copyWith(playing: true));
-      } else {
+      } else if (event.contains('stopped')) {
         emit(state.copyWith(playing: false));
       }
     });
