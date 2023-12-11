@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'radio unicorn',
         theme: ThemeData(),
         home: HomeScreen(flutterRadioPlayer: flutterRadioPlayer),

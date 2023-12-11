@@ -117,7 +117,7 @@ class _PlayerState extends State<Player> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: screenWidth*5/9,
+                      width: screenWidth * 5 / 9,
                       child: Text(
                         '${snapshot.data!.nowPlaying!.song!.title}',
                         style: TextStyle(
@@ -200,6 +200,8 @@ class _PlayerState extends State<Player> {
   }
 
   Widget SongHistoryButton() {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
@@ -208,23 +210,78 @@ class _PlayerState extends State<Player> {
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                    scrollable: true,
-                    backgroundColor: Colors.black87,
+                    backgroundColor: Color.fromARGB(255, 42, 42, 42),
                     title: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
                           'Song History',
-                          style: TextStyle(color: Colors.white, fontSize: 20),
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
                         ),
-                        Icon(
-                          Icons.close,
-                          color: Colors.white,
-                          size: 20,
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          onPressed: () => Navigator.pop(context),
                         )
                       ],
                     ),
-                    content: Container()),
+                    content: FutureBuilder<MusicData>(
+                        future: musicData,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Container(
+                              width: screenWidth * 7 / 9,
+                              height: screenHeight * 5 / 9,
+                              child: ListView.builder(
+                                itemCount: snapshot.data!.songHistory!.length,
+                                itemBuilder: (context, index) => Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          (index + 1).toString(),
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Container(
+                                          height: 50,
+                                          width: 50,
+                                          child: FadeInImage.memoryNetwork(
+                                            placeholder: kTransparentImage,
+                                            image:
+                                                '${snapshot.data!.songHistory![index].song!.art}',
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Text(
+                                          '${snapshot.data!.songHistory![index].song!.title}',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            return CircularProgressIndicator();
+                          }
+                        })),
               );
             },
             icon: Icon(
