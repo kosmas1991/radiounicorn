@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_radio_player/flutter_radio_player.dart';
+
 import 'package:radiounicorn/widgets/player.dart';
 
 class HomeScreen extends StatelessWidget {
-  final FlutterRadioPlayer flutterRadioPlayer;
-  const HomeScreen({required this.flutterRadioPlayer, super.key});
+
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class HomeScreen extends StatelessWidget {
               child:
                   Image.asset('assets/images/azulogo.png', fit: BoxFit.fill)),
           Player(
-            flutterRadioPlayer: flutterRadioPlayer,
+            
           )
         ]),
       ),

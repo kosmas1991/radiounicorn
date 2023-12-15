@@ -94,14 +94,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  flutter_radio_player:
-    dependency: "direct main"
-    description:
-      name: flutter_radio_player
-      sha256: "6157fccff7a99061ad97f2169fc2f852491eaa6b91c7b544f709ee71518ce01b"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -266,4 +258,4 @@ packages:
     version: "0.3.0"
 sdks:
   dart: ">=3.2.2 <4.0.0"
-  flutter: ">=2.5.0"
+  flutter: ">=1.16.0"

@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_radio_player/flutter_radio_player.dart';
-
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_radio_player/models/frp_source_modal.dart';
 import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
 import 'package:radiounicorn/cubits/volume/volume_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
@@ -12,8 +9,7 @@ import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
 
 class Player extends StatefulWidget {
-  final FlutterRadioPlayer flutterRadioPlayer;
-  const Player({required this.flutterRadioPlayer, super.key});
+  const Player({super.key});
 
   @override
   State<Player> createState() => _PlayerState();
@@ -22,21 +18,11 @@ class Player extends StatefulWidget {
 class _PlayerState extends State<Player> {
   double volume = 0.5;
   late Future<MusicData> musicData;
-  final FRPSource frpSource = FRPSource(
-    mediaSources: <MediaSources>[
-      MediaSources(
-          url: "https://radiounicorn.eu:8000/radio.mp3",
-          description: "radio unicorn LIVE",
-          isPrimary: true,
-          title: "unicorn",
-          isAac: true),
-    ],
-  );
+
   @override
   void initState() {
     super.initState();
-    widget.flutterRadioPlayer.initPlayer();
-    widget.flutterRadioPlayer.addMediaSources(frpSource);
+
     musicData = fetching();
   }
 
@@ -151,9 +137,7 @@ class _PlayerState extends State<Player> {
         BlocBuilder<PlayingCubit, PlayingState>(
           builder: (context, state) {
             return IconButton(
-                onPressed: () {
-                  widget.flutterRadioPlayer.playOrPause();
-                },
+                onPressed: () {},
                 icon: Icon(
                   state.playing == true
                       ? Icons.pause_circle_outline
@@ -176,14 +160,7 @@ class _PlayerState extends State<Player> {
                   activeColor: Colors.grey,
                   value: state.volume,
                   onChanged: (value) {
-                    widget.flutterRadioPlayer.getPlaybackState().then((value) {
-                      print('DA      STATE    IS    :   ${value}');
-                      if (value == 'PLAYING') {
-                        context.read<PlayingCubit>().emitNewState(true);
-                      }
-                    });
                     context.read<VolumeCubit>().setNewVolume(value);
-                    widget.flutterRadioPlayer.setVolume(state.volume);
                   },
                 );
               },
@@ -300,10 +277,13 @@ class _PlayerState extends State<Player> {
 Future<MusicData> fetching() async {
   var response =
       await http.get(Uri.parse('https://radiounicorn.eu/api/nowplaying'));
+  print('first resp : ${response} ');
   if (response.statusCode == 200) {
-    return MusicData.fromJson(
-        jsonDecode(response.body.substring(1, response.body.length - 1))
-            as Map<String, dynamic>);
+    List<MusicData> musicDatas;
+    musicDatas = (json.decode(response.body) as List)
+        .map((i) => MusicData.fromJson(i))
+        .toList();
+    return musicDatas[0]; // first radio
   } else {
     throw Exception('Failed');
   }
