@@ -17,9 +17,7 @@ class MyApp extends StatelessWidget {
     ]);
 
     return MaterialApp(
-      
       title: 'radio unicorn',
-      theme: ThemeData(),
       home: HomeScreen(),
     );
   }
