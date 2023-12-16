@@ -227,10 +227,17 @@ class _PlayerState extends State<Player> {
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
+                                    
                                       children: [
-                                        Text(
-                                          (index + 1).toString(),
-                                          style: TextStyle(color: Colors.white),
+                                        Container(
+                                          width: 20,
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            (index + 1).toString(),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
                                         ),
                                         SizedBox(
                                           width: 5,
@@ -247,9 +254,32 @@ class _PlayerState extends State<Player> {
                                         SizedBox(
                                           width: 5,
                                         ),
-                                        Text(
-                                          '${snapshot.data!.songHistory![index].song!.title}',
-                                          style: TextStyle(color: Colors.white),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                '${snapshot.data!.songHistory![index].song!.title}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${snapshot.data!.songHistory![index].song!.artist}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 10),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

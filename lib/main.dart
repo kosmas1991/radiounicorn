@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
     ]);
 
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
+      
       title: 'radio unicorn',
       theme: ThemeData(),
       home: HomeScreen(),
