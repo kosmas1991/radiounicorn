@@ -29,7 +29,7 @@ class _PlayerState extends State<Player> {
         volume: 1,
         showNotification: true);
     musicData = fetching();
-        Timer.periodic(Duration(seconds: 10), (timer) {
+    Timer.periodic(Duration(seconds: 5), (timer) {
       setState(() {
         musicData = fetching();
       });
@@ -38,7 +38,6 @@ class _PlayerState extends State<Player> {
 
   @override
   Widget build(BuildContext context) {
-
     return Center(
       child: Container(
           margin: EdgeInsets.all(20),
@@ -70,15 +69,41 @@ class _PlayerState extends State<Player> {
   }
 
   Widget RadioTitle() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Text(
-          'radio unicorn',
-          style: TextStyle(
-              color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'radio unicorn',
+            style: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          FutureBuilder(
+              future: musicData,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        color: Colors.green,
+                        size: 10,
+                      ),
+                      SizedBox(width: 5),
+                      Text(
+                        'listening now: ${snapshot.data!.listeners!.current}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  );
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              }),
+        ],
+      ),
     );
   }
 
