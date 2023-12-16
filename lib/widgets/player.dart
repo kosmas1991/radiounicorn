@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
-import 'package:radiounicorn/cubits/volume/volume_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:assets_audio_player/assets_audio_player.dart';
 
 class Player extends StatefulWidget {
   const Player({super.key});
@@ -16,19 +14,25 @@ class Player extends StatefulWidget {
 }
 
 class _PlayerState extends State<Player> {
+  AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
   double volume = 0.5;
   late Future<MusicData> musicData;
 
   @override
   void initState() {
     super.initState();
-
+    _assetsAudioPlayer.open(
+        Audio.liveStream('https://radiounicorn.eu/listen/unicorn/radio.mp3'),
+        autoStart: true,
+        playInBackground: PlayInBackground.enabled,
+        volume: 1,
+        showNotification: true);
     musicData = fetching();
   }
 
   @override
   Widget build(BuildContext context) {
-    Timer.periodic(Duration(seconds: 30), (timer) {
+    Timer.periodic(Duration(seconds: 15), (timer) {
       setState(() {
         musicData = fetching();
       });
@@ -134,43 +138,44 @@ class _PlayerState extends State<Player> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        BlocBuilder<PlayingCubit, PlayingState>(
-          builder: (context, state) {
-            return IconButton(
-                onPressed: () {},
-                icon: Icon(
-                  state.playing == true
-                      ? Icons.pause_circle_outline
-                      : Icons.play_circle_outline,
-                  size: 40,
-                  color: Colors.blue,
-                ));
-          },
-        ),
-        Row(
-          children: [
-            Icon(
-              Icons.volume_mute,
-              color: Colors.grey,
-              size: 20,
-            ),
-            BlocBuilder<VolumeCubit, VolumeState>(
-              builder: (context, state) {
-                return Slider(
-                  activeColor: Colors.grey,
-                  value: state.volume,
-                  onChanged: (value) {
-                    context.read<VolumeCubit>().setNewVolume(value);
-                  },
-                );
+        IconButton(
+            onPressed: () {
+              _assetsAudioPlayer.playOrPause();
+            },
+            icon: PlayerBuilder.isPlaying(
+                player: _assetsAudioPlayer,
+                builder: (context, isPlaying) => isPlaying
+                    ? Icon(
+                        Icons.pause_circle_outline,
+                        size: 40,
+                        color: Colors.blue,
+                      )
+                    : Icon(
+                        Icons.play_circle_outline,
+                        size: 40,
+                        color: Colors.blue,
+                      ))),
+        Row(children: [
+          Icon(
+            Icons.volume_mute,
+            color: Colors.grey,
+            size: 20,
+          ),
+          PlayerBuilder.volume(
+            player: _assetsAudioPlayer,
+            builder: (context, volume) => Slider(
+              activeColor: Colors.grey,
+              value: volume,
+              onChanged: (value) {
+                _assetsAudioPlayer.setVolume(value);
               },
             ),
-            Icon(
-              Icons.volume_up,
-              color: Colors.grey,
-              size: 20,
-            ),
-          ],
+          )
+        ]),
+        Icon(
+          Icons.volume_up,
+          color: Colors.grey,
+          size: 20,
         ),
       ],
     );
@@ -256,7 +261,10 @@ class _PlayerState extends State<Player> {
                               ),
                             );
                           } else {
-                            return CircularProgressIndicator();
+                            return Center(
+                                child: CircularProgressIndicator(
+                              color: Colors.blue,
+                            ));
                           }
                         })),
               );
@@ -277,7 +285,7 @@ class _PlayerState extends State<Player> {
 Future<MusicData> fetching() async {
   var response =
       await http.get(Uri.parse('https://radiounicorn.eu/api/nowplaying'));
-  print('first resp : ${response} ');
+
   if (response.statusCode == 200) {
     List<MusicData> musicDatas;
     musicDatas = (json.decode(response.body) as List)
