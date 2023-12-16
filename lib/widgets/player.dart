@@ -15,7 +15,8 @@ class Player extends StatefulWidget {
 
 class _PlayerState extends State<Player> {
   AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
-  double volume = 0.5;
+  double volume = 1;
+
   late Future<MusicData> musicData;
 
   @override
@@ -28,15 +29,16 @@ class _PlayerState extends State<Player> {
         volume: 1,
         showNotification: true);
     musicData = fetching();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Timer.periodic(Duration(seconds: 15), (timer) {
+        Timer.periodic(Duration(seconds: 10), (timer) {
       setState(() {
         musicData = fetching();
       });
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
     return Center(
       child: Container(
           margin: EdgeInsets.all(20),
@@ -227,7 +229,6 @@ class _PlayerState extends State<Player> {
                                     Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.start,
-                                    
                                       children: [
                                         Container(
                                           width: 20,
