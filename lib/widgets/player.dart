@@ -405,7 +405,7 @@ class _PlayerState extends State<Player> {
                             decoration: InputDecoration(
                                 hintText: 'Search a song or artist ...',
                                 hintStyle: TextStyle(
-                                    color: Colors.white,
+                                    color: Colors.grey,
                                     fontSize: 15,
                                     fontStyle: FontStyle.italic),
                                 enabledBorder: UnderlineInputBorder(
@@ -740,14 +740,11 @@ Future<List<NextSongsData>> fetchingNextSongs() async {
   final url = Uri.parse('https://radiounicorn.eu/api/station/1/queue');
   var response = await http.get(url, headers: headers);
 
-  print('                   .......           ${response.body}');
   if (response.statusCode == 200) {
     List<NextSongsData> nextSongsDatas;
     nextSongsDatas = (json.decode(response.body) as List)
         .map((i) => NextSongsData.fromJson(i))
         .toList();
-    print(
-        '&*(*&(&*(*&(*&(*&(&*(*&(&**************))))))))        ${nextSongsDatas}    ');
     return nextSongsDatas;
   } else {
     throw Exception('Failed');
