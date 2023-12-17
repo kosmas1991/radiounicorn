@@ -6,7 +6,9 @@ import 'package:radiounicorn/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:radiounicorn/cubits/requestsonglist/requestsonglist_cubit.dart';
 import 'package:radiounicorn/cubits/searchstring/searchstring_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
+import 'package:radiounicorn/models/nextsongsdata.dart';
 import 'package:radiounicorn/models/requestsongdata.dart';
+import '../strings.darthidden';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -24,6 +26,7 @@ class _PlayerState extends State<Player> {
   double volume = 1;
   TextEditingController textEditingController = TextEditingController();
   late Future<MusicData> musicData;
+  late Future<List<NextSongsData>> nextSongsData;
   late Future<List<RequestSongData>> reqData;
   @override
   void initState() {
@@ -35,9 +38,11 @@ class _PlayerState extends State<Player> {
         volume: 1,
         showNotification: true);
     musicData = fetching();
+    nextSongsData = fetchingNextSongs();
     Timer.periodic(Duration(seconds: 5), (timer) {
       setState(() {
         musicData = fetching();
+        nextSongsData = fetchingNextSongs();
       });
     });
     reqData = fetchSongRequestList();
@@ -225,8 +230,8 @@ class _PlayerState extends State<Player> {
   Widget SongHistoryAndRequestSongButtons() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      alignment: WrapAlignment.spaceBetween,
       children: [
         TextButton.icon(
             onPressed: () {
@@ -529,6 +534,130 @@ class _PlayerState extends State<Player> {
               'Request Song',
               style: TextStyle(color: Colors.white),
             )),
+        TextButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    backgroundColor: Color.fromARGB(255, 42, 42, 42),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Next songs',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                        )
+                      ],
+                    ),
+                    content: FutureBuilder<List<NextSongsData>>(
+                        future: nextSongsData,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return Container(
+                              width: screenWidth * 7 / 9,
+                              height: screenHeight * 2.5 / 9,
+                              child: ListView.builder(
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (context, index) => Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          width: 20,
+                                          child: Text(
+                                            textAlign: TextAlign.center,
+                                            (index + 1).toString(),
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Container(
+                                          height: 50,
+                                          width: 50,
+                                          child: FadeInImage.memoryNetwork(
+                                            placeholder: kTransparentImage,
+                                            image:
+                                                '${snapshot.data![index].song!.art}',
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                '${snapshot.data![index].song!.title}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                '${snapshot.data![index].song!.artist}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 15,
+                                    )
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Center(
+                                child: CircularProgressIndicator(
+                              color: Colors.blue,
+                            ));
+                          }
+                        })),
+              );
+            },
+            icon: Icon(
+              Icons.skip_next_outlined,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Next Songs',
+              style: TextStyle(color: Colors.white),
+            )),
       ],
     );
   }
@@ -583,7 +712,7 @@ void requestNewSong(String url, BuildContext context) async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-      'Failed! Song played too recently!',
+      'Failed! Same song or artist played too recently!',
       style: TextStyle(color: Colors.red),
     )));
   } else if (response.body.contains('a request too recently')) {
@@ -600,5 +729,27 @@ void requestNewSong(String url, BuildContext context) async {
       'Failed!',
       style: TextStyle(color: Colors.red),
     )));
+  }
+}
+
+Future<List<NextSongsData>> fetchingNextSongs() async {
+  final headers = {
+    'accept': 'application/json',
+    'X-API-Key': '${key}',
+  };
+  final url = Uri.parse('https://radiounicorn.eu/api/station/1/queue');
+  var response = await http.get(url, headers: headers);
+
+  print('                   .......           ${response.body}');
+  if (response.statusCode == 200) {
+    List<NextSongsData> nextSongsDatas;
+    nextSongsDatas = (json.decode(response.body) as List)
+        .map((i) => NextSongsData.fromJson(i))
+        .toList();
+    print(
+        '&*(*&(&*(*&(*&(*&(&*(*&(&**************))))))))        ${nextSongsDatas}    ');
+    return nextSongsDatas;
+  } else {
+    throw Exception('Failed');
   }
 }
