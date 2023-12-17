@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:radiounicorn/cubits/filteredlist/filteredlist_cubit.dart';
+import 'package:radiounicorn/cubits/requestsonglist/requestsonglist_cubit.dart';
+import 'package:radiounicorn/cubits/searchstring/searchstring_cubit.dart';
 import 'package:radiounicorn/models/musicdata.dart';
+import 'package:radiounicorn/models/requestsongdata.dart';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -16,9 +21,9 @@ class Player extends StatefulWidget {
 class _PlayerState extends State<Player> {
   AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
   double volume = 1;
-
+  TextEditingController textEditingController = TextEditingController();
   late Future<MusicData> musicData;
-
+  late Future<List<RequestSongData>> reqData;
   @override
   void initState() {
     super.initState();
@@ -34,6 +39,9 @@ class _PlayerState extends State<Player> {
         musicData = fetching();
       });
     });
+    reqData = fetchSongRequestList();
+    reqData.then(
+        (value) => context.read<RequestsonglistCubit>().emitNewList(value));
   }
 
   @override
@@ -62,7 +70,7 @@ class _PlayerState extends State<Player> {
               SizedBox(
                 height: 0,
               ),
-              SongHistoryButton(),
+              SongHistoryAndRequestSongButtons(),
             ],
           )),
     );
@@ -146,10 +154,15 @@ class _PlayerState extends State<Player> {
                         softWrap: false,
                       ),
                     ),
-                    Text(
-                      '${snapshot.data!.nowPlaying!.song!.artist}',
-                      style: TextStyle(color: Colors.white, fontSize: 15),
-                      overflow: TextOverflow.clip,
+                    Container(
+                      width: screenWidth * 5 / 9,
+                      child: Text(
+                        '${snapshot.data!.nowPlaying!.song!.artist}',
+                        style: TextStyle(color: Colors.white, fontSize: 15),
+                        overflow: TextOverflow.clip,
+                        maxLines: 2,
+                        softWrap: false,
+                      ),
                     ),
                   ],
                 )
@@ -208,11 +221,11 @@ class _PlayerState extends State<Player> {
     );
   }
 
-  Widget SongHistoryButton() {
+  Widget SongHistoryAndRequestSongButtons() {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         TextButton.icon(
             onPressed: () {
@@ -299,11 +312,16 @@ class _PlayerState extends State<Player> {
                                                 maxLines: 2,
                                               ),
                                             ),
-                                            Text(
-                                              '${snapshot.data!.songHistory![index].song!.artist}',
-                                              style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 10),
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                '${snapshot.data!.songHistory![index].song!.artist}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -333,6 +351,168 @@ class _PlayerState extends State<Player> {
               'Song History',
               style: TextStyle(color: Colors.white),
             )),
+        TextButton.icon(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                    backgroundColor: Color.fromARGB(255, 42, 42, 42),
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Request Song',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.close,
+                            color: Colors.grey,
+                            size: 20,
+                          ),
+                          onPressed: () {
+                            textEditingController.text = '';
+                            context.read<SearchstringCubit>().emitNewSearch('');
+                            Navigator.pop(context);
+                          },
+                        )
+                      ],
+                    ),
+                    content: Column(
+                      children: [
+                        Flexible(
+                          flex: 1,
+                          child: TextField(
+                            controller: textEditingController,
+                            onChanged: (value) {
+                              textEditingController.text = value;
+                              context
+                                  .read<SearchstringCubit>()
+                                  .emitNewSearch(value);
+                            },
+                            style: TextStyle(color: Colors.white, fontSize: 20),
+                            maxLines: 1,
+                            cursorColor: Colors.blue,
+                            decoration: InputDecoration(
+                                hintText: 'Search a song or artist ...',
+                                hintStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontStyle: FontStyle.italic),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white)),
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.white)),
+                                suffixIcon: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                )),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Flexible(
+                            flex: 9,
+                            child: BlocBuilder<FilteredlistCubit,
+                                FilteredlistState>(
+                              builder: (context, state) {
+                                return Container(
+                                  width: screenWidth * 8 / 9,
+                                  height: screenHeight * 8 / 9,
+                                  child: ListView.builder(
+                                    itemCount: state.filteredList.length,
+                                    itemBuilder: (context, index) => Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 25,
+                                              child: Text(
+                                                textAlign: TextAlign.center,
+                                                (index + 1).toString(),
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Container(
+                                              height: 50,
+                                              width: 50,
+                                              child: FadeInImage.memoryNetwork(
+                                                placeholder: kTransparentImage,
+                                                image:
+                                                    '${state.filteredList[index].song!.art}',
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 5,
+                                            ),
+                                            Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Container(
+                                                  width: screenWidth * 1 / 2.5,
+                                                  child: Text(
+                                                    '${state.filteredList[index].song!.title}',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12,
+                                                        fontWeight:
+                                                            FontWeight.bold),
+                                                    overflow: TextOverflow.clip,
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  width: screenWidth * 1 / 2.5,
+                                                  child: Text(
+                                                    '${state.filteredList[index].song!.artist}',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 10),
+                                                    overflow: TextOverflow.clip,
+                                                    maxLines: 2,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 15,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            )),
+                      ],
+                    )),
+              );
+            },
+            icon: Icon(
+              Icons.audiotrack_sharp,
+              color: Colors.white,
+            ),
+            label: Text(
+              'Request Song',
+              style: TextStyle(color: Colors.white),
+            )),
       ],
     );
   }
@@ -348,6 +528,20 @@ Future<MusicData> fetching() async {
         .map((i) => MusicData.fromJson(i))
         .toList();
     return musicDatas[0]; // first radio
+  } else {
+    throw Exception('Failed');
+  }
+}
+
+Future<List<RequestSongData>> fetchSongRequestList() async {
+  var response = await http
+      .get(Uri.parse('https://radiounicorn.eu/api/station/1/requests'));
+
+  if (response.statusCode == 200) {
+    List<RequestSongData> data = (json.decode(response.body) as List)
+        .map((i) => RequestSongData.fromJson(i))
+        .toList();
+    return data;
   } else {
     throw Exception('Failed');
   }
