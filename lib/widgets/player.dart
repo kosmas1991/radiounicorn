@@ -12,7 +12,8 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
 
 class Player extends StatefulWidget {
-  const Player({super.key});
+  final BuildContext snackBarContext;
+  const Player({required this.snackBarContext, super.key});
 
   @override
   State<Player> createState() => _PlayerState();
@@ -421,76 +422,91 @@ class _PlayerState extends State<Player> {
                             flex: 9,
                             child: BlocBuilder<FilteredlistCubit,
                                 FilteredlistState>(
-                              builder: (context, state) {
+                              builder: (context1, state) {
                                 return Container(
                                   width: screenWidth * 8 / 9,
                                   height: screenHeight * 8 / 9,
                                   child: ListView.builder(
                                     itemCount: state.filteredList.length,
-                                    itemBuilder: (context, index) => Column(
+                                    itemBuilder: (context2, index) => Column(
                                       children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              width: 25,
-                                              child: Text(
-                                                textAlign: TextAlign.center,
-                                                (index + 1).toString(),
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Container(
-                                              height: 50,
-                                              width: 50,
-                                              child: FadeInImage.memoryNetwork(
-                                                placeholder: kTransparentImage,
-                                                image:
-                                                    '${state.filteredList[index].song!.art}',
-                                              ),
-                                            ),
-                                            SizedBox(
-                                              width: 5,
-                                            ),
-                                            Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width: screenWidth * 1 / 2.5,
-                                                  child: Text(
-                                                    '${state.filteredList[index].song!.title}',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 12,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    overflow: TextOverflow.clip,
-                                                    maxLines: 2,
+                                        InkWell(
+                                          onTap: () {
+                                            requestNewSong(
+                                                state.filteredList[index]
+                                                    .requestUrl!,
+                                                widget.snackBarContext);
+                                            Navigator.pop(context);
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: 25,
+                                                child: Text(
+                                                  textAlign: TextAlign.center,
+                                                  (index + 1).toString(),
+                                                  style: TextStyle(
+                                                    color: Colors.white,
                                                   ),
                                                 ),
-                                                Container(
-                                                  width: screenWidth * 1 / 2.5,
-                                                  child: Text(
-                                                    '${state.filteredList[index].song!.artist}',
-                                                    style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 10),
-                                                    overflow: TextOverflow.clip,
-                                                    maxLines: 2,
-                                                  ),
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Container(
+                                                height: 50,
+                                                width: 50,
+                                                child:
+                                                    FadeInImage.memoryNetwork(
+                                                  placeholder:
+                                                      kTransparentImage,
+                                                  image:
+                                                      '${state.filteredList[index].song!.art}',
                                                 ),
-                                              ],
-                                            ),
-                                          ],
+                                              ),
+                                              SizedBox(
+                                                width: 5,
+                                              ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    width:
+                                                        screenWidth * 1 / 2.5,
+                                                    child: Text(
+                                                      '${state.filteredList[index].song!.title}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    width:
+                                                        screenWidth * 1 / 2.5,
+                                                    child: Text(
+                                                      '${state.filteredList[index].song!.artist}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                         SizedBox(
                                           height: 15,
@@ -544,5 +560,45 @@ Future<List<RequestSongData>> fetchSongRequestList() async {
     return data;
   } else {
     throw Exception('Failed');
+  }
+}
+
+void requestNewSong(String url, BuildContext context) async {
+  var response = await http.get(Uri.parse('https://radiounicorn.eu${url}'));
+  if (response.body.contains('"success":true')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Song just added to the song queue',
+      style: TextStyle(color: Colors.green),
+    )));
+  } else if (response.body.contains('Duplicate request')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! Song already requested!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else if (response.body.contains('played too recently')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! Song played too recently!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else if (response.body.contains('a request too recently')) {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed! You asked for another request too recently!',
+      style: TextStyle(color: Colors.red),
+    )));
+  } else {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+      'Failed!',
+      style: TextStyle(color: Colors.red),
+    )));
   }
 }

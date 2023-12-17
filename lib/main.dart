@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider(
           create: (context) => FilteredlistCubit(
-            initialList: context.read<RequestsonglistCubit>().state.list,
+              initialList: context.read<RequestsonglistCubit>().state.list,
               requestsonglistCubit: context.read<RequestsonglistCubit>(),
               searchstringCubit: context.read<SearchstringCubit>()),
         ),

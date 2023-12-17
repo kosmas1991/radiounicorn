@@ -7,7 +7,6 @@ class SearchstringCubit extends Cubit<SearchstringState> {
   SearchstringCubit() : super(SearchstringState.initial());
 
   emitNewSearch(String newSearch) {
-    print('NEW STATE FOR STRING :  ${newSearch}');
     emit(state.copyWith(searchString: newSearch));
   }
 }

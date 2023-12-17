@@ -12,7 +12,9 @@ class FilteredlistCubit extends Cubit<FilteredlistState> {
   final SearchstringCubit searchstringCubit;
   late final StreamSubscription searchStreamSubscription;
   FilteredlistCubit(
-      {required this.requestsonglistCubit, required this.searchstringCubit, required this.initialList})
+      {required this.requestsonglistCubit,
+      required this.searchstringCubit,
+      required this.initialList})
       : super(FilteredlistState(filteredList: initialList)) {
     searchStreamSubscription =
         searchstringCubit.stream.listen((SearchstringState event) {
@@ -33,8 +35,6 @@ class FilteredlistCubit extends Cubit<FilteredlistState> {
           }
         }).toList();
         emitNewFilteredList(newCreatedList);
-        print(
-            'NEW LIST NEW LIST NEW LIST NEW LIST NEW LIST NEW L       ${newCreatedList.length} ');
       }
     });
   }
