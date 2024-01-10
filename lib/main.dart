@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_radio_player/flutter_radio_player.dart';
-import 'package:radiounicorn/cubits/playing/playing_cubit.dart';
-import 'package:radiounicorn/cubits/volume/volume_cubit.dart';
+import 'package:radiounicorn/cubits/filteredlist/filteredlist_cubit.dart';
+import 'package:radiounicorn/cubits/requestsonglist/requestsonglist_cubit.dart';
+import 'package:radiounicorn/cubits/searchstring/searchstring_cubit.dart';
 import 'package:radiounicorn/screens/homescreen.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,22 +20,24 @@ class MyApp extends StatelessWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    FlutterRadioPlayer flutterRadioPlayer = FlutterRadioPlayer();
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) =>
-              PlayingCubit(flutterRadioPlayer: flutterRadioPlayer),
+          create: (context) => SearchstringCubit(),
         ),
         BlocProvider(
-          create: (context) => VolumeCubit(),
+          create: (context) => RequestsonglistCubit(),
+        ),
+        BlocProvider(
+          create: (context) => FilteredlistCubit(
+              initialList: context.read<RequestsonglistCubit>().state.list,
+              requestsonglistCubit: context.read<RequestsonglistCubit>(),
+              searchstringCubit: context.read<SearchstringCubit>()),
         ),
       ],
       child: MaterialApp(
-        debugShowCheckedModeBanner: false,
         title: 'radio unicorn',
-        theme: ThemeData(),
-        home: HomeScreen(flutterRadioPlayer: flutterRadioPlayer),
+        home: HomeScreen(),
       ),
     );
   }

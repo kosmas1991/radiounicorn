@@ -6,7 +6,7 @@ class MusicData {
   PlayingNext? playingNext;
   List<SongHistory>? songHistory;
   bool? isOnline;
- 
+  Null cache;
 
   MusicData(
       {this.station,
@@ -16,7 +16,7 @@ class MusicData {
       this.playingNext,
       this.songHistory,
       this.isOnline,
-      });
+      this.cache});
 
   MusicData.fromJson(Map<String, dynamic> json) {
     station =
@@ -38,7 +38,7 @@ class MusicData {
       });
     }
     isOnline = json['is_online'];
-    
+    cache = json['cache'];
   }
 
   Map<String, dynamic> toJson() {
@@ -62,7 +62,7 @@ class MusicData {
       data['song_history'] = this.songHistory!.map((v) => v.toJson()).toList();
     }
     data['is_online'] = this.isOnline;
-    
+    data['cache'] = this.cache;
     return data;
   }
 }
@@ -83,7 +83,7 @@ class Station {
   List<Mounts>? mounts;
   List<Null>? remotes;
   bool? hlsEnabled;
-  String? hlsUrl;
+  Null hlsUrl;
   int? hlsListeners;
 
   Station(
@@ -126,9 +126,7 @@ class Station {
     }
     if (json['remotes'] != null) {
       remotes = <Null>[];
-      json['remotes'].forEach((v) {
-        
-      });
+      json['remotes'].forEach((v) {});
     }
     hlsEnabled = json['hls_enabled'];
     hlsUrl = json['hls_url'];
@@ -152,9 +150,7 @@ class Station {
     if (this.mounts != null) {
       data['mounts'] = this.mounts!.map((v) => v.toJson()).toList();
     }
-    if (this.remotes != null) {
-      
-    }
+    if (this.remotes != null) {}
     data['hls_enabled'] = this.hlsEnabled;
     data['hls_url'] = this.hlsUrl;
     data['hls_listeners'] = this.hlsListeners;
@@ -236,21 +232,24 @@ class Listeners {
 class Live {
   bool? isLive;
   String? streamerName;
+  Null broadcastStart;
+  Null art;
 
-
-  Live({this.isLive, this.streamerName,});
+  Live({this.isLive, this.streamerName, this.broadcastStart, this.art});
 
   Live.fromJson(Map<String, dynamic> json) {
     isLive = json['is_live'];
     streamerName = json['streamer_name'];
-
+    broadcastStart = json['broadcast_start'];
+    art = json['art'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['is_live'] = this.isLive;
     data['streamer_name'] = this.streamerName;
-
+    data['broadcast_start'] = this.broadcastStart;
+    data['art'] = this.art;
     return data;
   }
 }
@@ -342,9 +341,7 @@ class Song {
     art = json['art'];
     if (json['custom_fields'] != null) {
       customFields = <Null>[];
-      json['custom_fields'].forEach((v) {
-    
-      });
+      json['custom_fields'].forEach((v) {});
     }
   }
 
@@ -360,7 +357,7 @@ class Song {
     data['lyrics'] = this.lyrics;
     data['art'] = this.art;
     if (this.customFields != null) {
-      
+      data['custom_fields'] = this.customFields!.map((v) {}).toList();
     }
     return data;
   }
