@@ -665,14 +665,11 @@ class _PlayerState extends State<Player> {
 
 Future<MusicData> fetching() async {
   var response =
-      await http.get(Uri.parse('https://radiounicorn.eu/api/nowplaying'));
+      await http.get(Uri.parse('https://radiounicorn.eu/api/nowplaying/1'));
 
   if (response.statusCode == 200) {
-    List<MusicData> musicDatas;
-    musicDatas = (json.decode(response.body) as List)
-        .map((i) => MusicData.fromJson(i))
-        .toList();
-    return musicDatas[0]; // first radio
+    return MusicData.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
   } else {
     throw Exception('Failed');
   }
