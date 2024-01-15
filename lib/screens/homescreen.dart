@@ -10,10 +10,11 @@ class HomeScreen extends StatelessWidget {
       child: Scaffold(
         body: Stack(children: [
           Container(
+              color: Colors.grey,
               width: double.infinity,
               height: double.infinity,
-              child:
-                  Image.asset('assets/images/azulogo.png', fit: BoxFit.fill)),
+              child: Image.asset('assets/images/logoweb.png',
+                  fit: BoxFit.fitWidth)),
           Player(
             snackBarContext: context,
           )
