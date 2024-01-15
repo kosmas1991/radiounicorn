@@ -396,7 +396,6 @@ class _PlayerState extends State<Player> {
                               child: TextField(
                                 controller: textEditingController,
                                 onChanged: (value) {
-                                  textEditingController.text = value;
                                   context
                                       .read<SearchstringCubit>()
                                       .emitNewSearch(value);
