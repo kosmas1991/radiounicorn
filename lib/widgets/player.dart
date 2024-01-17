@@ -9,6 +9,7 @@ import 'package:radiounicorn/models/musicdata.dart';
 import 'package:radiounicorn/models/nextsongsdata.dart';
 import 'package:radiounicorn/models/requestsongdata.dart';
 import '../strings.darthidden';
+import '../mainVars.dart';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:assets_audio_player/assets_audio_player.dart';
@@ -32,7 +33,7 @@ class _PlayerState extends State<Player> {
   void initState() {
     super.initState();
     _assetsAudioPlayer.open(
-        Audio.liveStream('https://radiounicorn.eu/listen/unicorn/radio.mp3'),
+        Audio.liveStream('${theURL}/listen/${stationName}/radio.mp3'),
         autoStart: false,
         playInBackground: PlayInBackground.enabled,
         volume: 1,
@@ -90,7 +91,7 @@ class _PlayerState extends State<Player> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            'radio unicorn',
+            'radio ${stationName}',
             style: TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           ),
@@ -692,7 +693,7 @@ class _PlayerState extends State<Player> {
 
 Future<MusicData> fetching() async {
   var response =
-      await http.get(Uri.parse('https://radiounicorn.eu/api/nowplaying/1'));
+      await http.get(Uri.parse('${theURL}/api/nowplaying/${theStationID}'));
 
   if (response.statusCode == 200) {
     return MusicData.fromJson(
@@ -704,7 +705,7 @@ Future<MusicData> fetching() async {
 
 Future<List<RequestSongData>> fetchSongRequestList() async {
   var response = await http
-      .get(Uri.parse('https://radiounicorn.eu/api/station/1/requests'));
+      .get(Uri.parse('${theURL}/api/station/${theStationID}/requests'));
 
   if (response.statusCode == 200) {
     List<RequestSongData> data = (json.decode(response.body) as List)
@@ -717,7 +718,7 @@ Future<List<RequestSongData>> fetchSongRequestList() async {
 }
 
 void requestNewSong(String url, BuildContext context) async {
-  var response = await http.get(Uri.parse('https://radiounicorn.eu${url}'));
+  var response = await http.get(Uri.parse('${theURL}${url}'));
   if (response.body.contains('"success":true')) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -761,7 +762,7 @@ Future<List<NextSongsData>> fetchingNextSongs() async {
     'accept': 'application/json',
     'X-API-Key': '${key}',
   };
-  final url = Uri.parse('https://radiounicorn.eu/api/station/1/queue');
+  final url = Uri.parse('${theURL}/api/station/${theStationID}/queue');
   var response = await http.get(url, headers: headers);
 
   if (response.statusCode == 200) {
