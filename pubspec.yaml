@@ -68,6 +68,7 @@ flutter:
   assets:
     - assets/images/azulogo.png
     - assets/images/logoweb.png
+    - assets/images/logowebmini.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

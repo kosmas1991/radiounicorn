@@ -6,6 +6,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
     return SafeArea(
       child: Scaffold(
         body: Stack(children: [
@@ -13,8 +14,11 @@ class HomeScreen extends StatelessWidget {
               color: Colors.grey,
               width: double.infinity,
               height: double.infinity,
-              child: Image.asset('assets/images/logoweb.png',
-                  fit: BoxFit.fitWidth)),
+              child: screenWidth < 600
+                  ? Image.asset('assets/images/logowebmini.png',
+                      fit: BoxFit.fitWidth)
+                  : Image.asset('assets/images/logoweb.png',
+                      fit: BoxFit.fitWidth)),
           Player(
             snackBarContext: context,
           )

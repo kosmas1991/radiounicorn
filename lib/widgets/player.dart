@@ -60,6 +60,7 @@ class _PlayerState extends State<Player> {
             borderRadius: BorderRadius.circular(5),
           ),
           padding: EdgeInsets.all(20),
+          margin: EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -144,7 +145,7 @@ class _PlayerState extends State<Player> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      width: 300,
+                      width: 250,
                       child: Text(
                         '${snapshot.data!.nowPlaying!.song!.title}',
                         style: TextStyle(
@@ -153,7 +154,7 @@ class _PlayerState extends State<Player> {
                             fontWeight: FontWeight.bold),
                         overflow: TextOverflow.fade,
                         maxLines: 2,
-                        softWrap: false,
+                        //softWrap: false,
                       ),
                     ),
                     Container(
