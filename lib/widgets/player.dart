@@ -264,6 +264,7 @@ class _PlayerState extends State<Player> {
                       content: FutureBuilder<MusicData>(
                           future: musicData,
                           builder: (context, snapshot) {
+                            DateTime now = DateTime.now();
                             if (snapshot.hasData) {
                               return Container(
                                 width: 400,
@@ -303,25 +304,48 @@ class _PlayerState extends State<Player> {
                                           ),
                                           Column(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.start,
+                                                MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Container(
-                                                child: Text(
-                                                  '${snapshot.data!.songHistory![index].song!.title}',
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold),
-                                                  overflow: TextOverflow.clip,
-                                                  maxLines: 2,
-                                                ),
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Container(
+                                                    child: Text(
+                                                      '${snapshot.data!.songHistory![index].song!.title}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 12,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                  Container(
+                                                    child: Text(
+                                                      '${snapshot.data!.songHistory![index].song!.artist}',
+                                                      style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10),
+                                                      overflow:
+                                                          TextOverflow.clip,
+                                                      maxLines: 2,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: 8,
                                               ),
                                               Container(
                                                 child: Text(
-                                                  '${snapshot.data!.songHistory![index].song!.artist}',
+                                                  'before ${(((now.millisecondsSinceEpoch / 1000) - snapshot.data!.songHistory![index].playedAt!) / 60).round()} mins',
                                                   style: TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 10),
