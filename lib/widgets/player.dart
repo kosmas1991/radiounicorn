@@ -263,6 +263,8 @@ class _PlayerState extends State<Player> {
                     content: FutureBuilder<MusicData>(
                         future: musicData,
                         builder: (context, snapshot) {
+                          DateTime now = DateTime.now();
+
                           if (snapshot.hasData) {
                             return Container(
                               width: screenWidth * 7 / 9,
@@ -323,6 +325,17 @@ class _PlayerState extends State<Player> {
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
                                                 '${snapshot.data!.songHistory![index].song!.artist}',
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10),
+                                                overflow: TextOverflow.clip,
+                                                maxLines: 2,
+                                              ),
+                                            ),
+                                            Container(
+                                              width: screenWidth * 1 / 2.5,
+                                              child: Text(
+                                                'before ${(((now.millisecondsSinceEpoch / 1000) - snapshot.data!.songHistory![index].playedAt!) / 60).round()} mins',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
