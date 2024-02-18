@@ -155,11 +155,11 @@ class _PlayerState extends State<Player> {
                             fontWeight: FontWeight.bold),
                         overflow: TextOverflow.fade,
                         maxLines: 2,
-                        //softWrap: false,
+                        softWrap: false,
                       ),
                     ),
                     Container(
-                      width: 300,
+                      width: 250,
                       child: Text(
                         '${snapshot.data!.nowPlaying!.song!.artist}',
                         style: TextStyle(color: Colors.white, fontSize: 15),
