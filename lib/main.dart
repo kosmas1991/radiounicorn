@@ -9,14 +9,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /*
-
 Flutter 3.29.1 • channel stable • https://github.com/flutter/flutter.git
 Framework • revision 09de023485 (3 weeks ago) • 2025-02-28 13:44:05 -0800
 Engine • revision 871f65ac1b
 Tools • Dart 3.7.0 • DevTools 2.42.2
-
 */
-//test .gitignore
+
 void main() async {
   await JustAudioBackground.init(
     androidNotificationChannelId: 'gr.techzombie.radiounicorn.channel.audio',
@@ -26,9 +24,16 @@ void main() async {
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
+  static GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -52,6 +57,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
+        navigatorKey: MyApp.navigatorKey,
         title: 'radio ${stationName}',
         home: HomeScreen(),
       ),

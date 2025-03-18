@@ -14,9 +14,7 @@ class HomeScreen extends StatelessWidget {
               height: double.infinity,
               child:
                   Image.asset('assets/images/azulogo.png', fit: BoxFit.fill)),
-          Player(
-            snackBarContext: context,
-          )
+          Player()
         ]),
       ),
     );
