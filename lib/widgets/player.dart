@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:radiounicorn/cubits/filteredlist/filteredlist_cubit.dart';
 import 'package:radiounicorn/cubits/requestsonglist/requestsonglist_cubit.dart';
 import 'package:radiounicorn/cubits/searchstring/searchstring_cubit.dart';
@@ -12,7 +14,6 @@ import 'package:radiounicorn/models/requestsongdata.dart';
 import '../strings.darthidden';
 import 'dart:async';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:assets_audio_player/assets_audio_player.dart';
 
 class Player extends StatefulWidget {
   final BuildContext snackBarContext;
@@ -23,7 +24,7 @@ class Player extends StatefulWidget {
 }
 
 class _PlayerState extends State<Player> {
-  AssetsAudioPlayer _assetsAudioPlayer = AssetsAudioPlayer();
+  final player = AudioPlayer();
   double volume = 1;
   TextEditingController textEditingController = TextEditingController();
   late Future<MusicData> musicData;
@@ -32,12 +33,7 @@ class _PlayerState extends State<Player> {
   @override
   void initState() {
     super.initState();
-    _assetsAudioPlayer.open(
-        Audio.liveStream('${theURL}/listen/${stationName}/radio.mp3'),
-        autoStart: true,
-        playInBackground: PlayInBackground.enabled,
-        volume: 1,
-        showNotification: true);
+    _init();
     musicData = fetching();
     nextSongsData = fetchingNextSongs();
     Timer.periodic(Duration(seconds: 5), (timer) {
@@ -49,6 +45,27 @@ class _PlayerState extends State<Player> {
     reqData = fetchSongRequestList();
     reqData.then(
         (value) => context.read<RequestsonglistCubit>().emitNewList(value));
+  }
+
+  Future<void> _init() async {
+    await player.setUrl(
+      playerURL,
+      tag: MediaItem(
+        id: '1',
+        title: stationName,
+        artist: 'stream',
+        isLive: true,
+        artUri: Uri.parse(logoURL),
+      ),
+    );
+    await player.setVolume(volume);
+    await player.play();
+  }
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
   }
 
   @override
@@ -108,7 +125,7 @@ class _PlayerState extends State<Player> {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        'listening now: ${snapshot.data!.listeners!.current}',
+                        'listening now: ${snapshot.data!.listeners!.unique}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],
@@ -151,7 +168,7 @@ class _PlayerState extends State<Player> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.title}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.title!.codeUnits)}',
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
@@ -164,7 +181,7 @@ class _PlayerState extends State<Player> {
                     Container(
                       width: screenWidth * 5 / 9,
                       child: Text(
-                        '${snapshot.data!.nowPlaying!.song!.artist}',
+                        '${utf8.decode(snapshot.data!.nowPlaying!.song!.artist!.codeUnits)}',
                         style: TextStyle(color: Colors.white, fontSize: 15),
                         overflow: TextOverflow.clip,
                         maxLines: 2,
@@ -185,45 +202,78 @@ class _PlayerState extends State<Player> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-            onPressed: () {
-              _assetsAudioPlayer.playOrPause();
-            },
-            icon: PlayerBuilder.isPlaying(
-                player: _assetsAudioPlayer,
-                builder: (context, isPlaying) => isPlaying
-                    ? Icon(
-                        Icons.pause_circle_outline,
-                        size: 40,
-                        color: Colors.blue,
-                      )
-                    : Icon(
-                        Icons.play_circle_outline,
-                        size: 40,
-                        color: Colors.blue,
-                      ))),
-        Row(children: [
-          Icon(
-            Icons.volume_mute,
-            color: Colors.grey,
-            size: 20,
-          ),
-          PlayerBuilder.volume(
-            player: _assetsAudioPlayer,
-            builder: (context, volume) => Slider(
+        StreamBuilder<PlayerState>(
+          stream: player.playerStateStream,
+          builder: (context, snapshot) {
+            final playerState = snapshot.data;
+            final processingState = playerState?.processingState;
+            final playing = playerState?.playing;
+            if (processingState == ProcessingState.loading ||
+                processingState == ProcessingState.buffering) {
+              return Container(
+                margin: const EdgeInsets.all(8.0),
+                width: 32.0,
+                height: 32.0,
+                child: const CircularProgressIndicator(
+                  color: Colors.blue,
+                ),
+              );
+            } else if (playing != true) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.play_circle_outline,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: player.play,
+              );
+            } else if (processingState != ProcessingState.completed) {
+              return IconButton(
+                icon: const Icon(
+                  Icons.pause_circle_outline,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: player.pause,
+              );
+            } else {
+              return IconButton(
+                icon: const Icon(
+                  Icons.replay_outlined,
+                  color: Colors.blue,
+                ),
+                iconSize: 32.0,
+                onPressed: () => player.seek(Duration.zero),
+              );
+            }
+          },
+        ),
+        Row(
+          children: [
+            Icon(
+              Icons.volume_down,
+              color: Colors.grey,
+            ),
+            Slider(
               activeColor: Colors.grey,
               value: volume,
               onChanged: (value) {
-                _assetsAudioPlayer.setVolume(value);
+                setState(() {
+                  volume = value;
+                  player.setVolume(value);
+                });
+                setState(() {
+                  volume = value;
+                  player.setVolume(value);
+                });
               },
             ),
-          )
-        ]),
-        Icon(
-          Icons.volume_up,
-          color: Colors.grey,
-          size: 20,
-        ),
+            Icon(
+              Icons.volume_up,
+              color: Colors.grey,
+            ),
+          ],
+        )
       ],
     );
   }
@@ -311,7 +361,7 @@ class _PlayerState extends State<Player> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.title}',
+                                                '${utf8.decode(snapshot.data!.songHistory![index].song!.title!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -324,7 +374,7 @@ class _PlayerState extends State<Player> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data!.songHistory![index].song!.artist}',
+                                                '${utf8.decode(snapshot.data!.songHistory![index].song!.artist!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),
@@ -623,7 +673,7 @@ class _PlayerState extends State<Player> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data![index].song!.title}',
+                                                '${utf8.decode(snapshot.data![index].song!.title!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 12,
@@ -636,7 +686,7 @@ class _PlayerState extends State<Player> {
                                             Container(
                                               width: screenWidth * 1 / 2.5,
                                               child: Text(
-                                                '${snapshot.data![index].song!.artist}',
+                                                '${utf8.decode(snapshot.data![index].song!.artist!.codeUnits)}',
                                                 style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 10),

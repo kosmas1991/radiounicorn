@@ -1,0 +1,2 @@
+C:/Users/Midas/Desktop/flutter_projects/radiounicorn-1/android/app/.cxx/RelWithDebInfo/t594a5u1/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/Midas/Desktop/flutter_projects/radiounicorn-1/android/app/.cxx/RelWithDebInfo/t594a5u1/x86_64/CMakeFiles/rebuild_cache.dir
