@@ -13,8 +13,8 @@ class HomeScreen extends StatelessWidget {
               width: double.infinity,
               height: double.infinity,
               child:
-                  Image.asset('assets/images/azulogo.png', fit: BoxFit.fill)),
-          Player()
+                  Image.asset('assets/images/azulogo.png', fit: BoxFit.cover)),
+          Player(),
         ]),
       ),
     );

@@ -70,7 +70,9 @@ class _PlayerState extends State<Player> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-          margin: EdgeInsets.all(20),
+          height: 300,
+          width: 600,
+          margin: EdgeInsets.all(10),
           decoration: BoxDecoration(
             color: Colors.black54,
             borderRadius: BorderRadius.circular(5),
@@ -93,7 +95,6 @@ class _PlayerState extends State<Player> {
                 height: 0,
               ),
               SongHistoryAndRequestSongButtons(
-                  
                   musicData: musicData,
                   textEditingController: textEditingController,
                   nextSongsData: nextSongsData),
@@ -102,6 +103,3 @@ class _PlayerState extends State<Player> {
     );
   }
 }
-
-
-

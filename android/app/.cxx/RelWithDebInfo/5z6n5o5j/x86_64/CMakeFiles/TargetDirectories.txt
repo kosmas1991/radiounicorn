@@ -1,0 +1,2 @@
+C:/Users/KAG/Desktop/flutter_projects/radiounicorn-1/android/app/.cxx/RelWithDebInfo/5z6n5o5j/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/KAG/Desktop/flutter_projects/radiounicorn-1/android/app/.cxx/RelWithDebInfo/5z6n5o5j/x86_64/CMakeFiles/rebuild_cache.dir
