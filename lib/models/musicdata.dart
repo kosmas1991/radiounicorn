@@ -1,70 +1,263 @@
+// To parse this JSON data, do
+//
+//     final musicData = musicDataFromJson(jsonString);
+
+import 'dart:convert';
+
+MusicData musicDataFromJson(String str) => MusicData.fromJson(json.decode(str));
+
+String musicDataToJson(MusicData data) => json.encode(data.toJson());
+
 class MusicData {
   Station? station;
   Listeners? listeners;
   Live? live;
   NowPlaying? nowPlaying;
   PlayingNext? playingNext;
-  List<SongHistory>? songHistory;
+  List<NowPlaying>? songHistory;
   bool? isOnline;
-  Null cache;
+  dynamic cache;
 
-  MusicData(
-      {this.station,
-      this.listeners,
-      this.live,
-      this.nowPlaying,
-      this.playingNext,
-      this.songHistory,
-      this.isOnline,
-      this.cache});
+  MusicData({
+    this.station,
+    this.listeners,
+    this.live,
+    this.nowPlaying,
+    this.playingNext,
+    this.songHistory,
+    this.isOnline,
+    this.cache,
+  });
 
-  MusicData.fromJson(Map<String, dynamic> json) {
-    station =
-        json['station'] != null ? new Station.fromJson(json['station']) : null;
-    listeners = json['listeners'] != null
-        ? new Listeners.fromJson(json['listeners'])
-        : null;
-    live = json['live'] != null ? new Live.fromJson(json['live']) : null;
-    nowPlaying = json['now_playing'] != null
-        ? new NowPlaying.fromJson(json['now_playing'])
-        : null;
-    playingNext = json['playing_next'] != null
-        ? new PlayingNext.fromJson(json['playing_next'])
-        : null;
-    if (json['song_history'] != null) {
-      songHistory = <SongHistory>[];
-      json['song_history'].forEach((v) {
-        songHistory!.add(new SongHistory.fromJson(v));
-      });
-    }
-    isOnline = json['is_online'];
-    cache = json['cache'];
-  }
+  factory MusicData.fromJson(Map<String, dynamic> json) => MusicData(
+        station:
+            json["station"] == null ? null : Station.fromJson(json["station"]),
+        listeners: json["listeners"] == null
+            ? null
+            : Listeners.fromJson(json["listeners"]),
+        live: json["live"] == null ? null : Live.fromJson(json["live"]),
+        nowPlaying: json["now_playing"] == null
+            ? null
+            : NowPlaying.fromJson(json["now_playing"]),
+        playingNext: json["playing_next"] == null
+            ? null
+            : PlayingNext.fromJson(json["playing_next"]),
+        songHistory: json["song_history"] == null
+            ? []
+            : List<NowPlaying>.from(
+                json["song_history"]!.map((x) => NowPlaying.fromJson(x))),
+        isOnline: json["is_online"],
+        cache: json["cache"],
+      );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.station != null) {
-      data['station'] = this.station!.toJson();
-    }
-    if (this.listeners != null) {
-      data['listeners'] = this.listeners!.toJson();
-    }
-    if (this.live != null) {
-      data['live'] = this.live!.toJson();
-    }
-    if (this.nowPlaying != null) {
-      data['now_playing'] = this.nowPlaying!.toJson();
-    }
-    if (this.playingNext != null) {
-      data['playing_next'] = this.playingNext!.toJson();
-    }
-    if (this.songHistory != null) {
-      data['song_history'] = this.songHistory!.map((v) => v.toJson()).toList();
-    }
-    data['is_online'] = this.isOnline;
-    data['cache'] = this.cache;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "station": station?.toJson(),
+        "listeners": listeners?.toJson(),
+        "live": live?.toJson(),
+        "now_playing": nowPlaying?.toJson(),
+        "playing_next": playingNext?.toJson(),
+        "song_history": songHistory == null
+            ? []
+            : List<dynamic>.from(songHistory!.map((x) => x.toJson())),
+        "is_online": isOnline,
+        "cache": cache,
+      };
+}
+
+class Listeners {
+  int? total;
+  int? unique;
+  int? current;
+
+  Listeners({
+    this.total,
+    this.unique,
+    this.current,
+  });
+
+  factory Listeners.fromJson(Map<String, dynamic> json) => Listeners(
+        total: json["total"],
+        unique: json["unique"],
+        current: json["current"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "total": total,
+        "unique": unique,
+        "current": current,
+      };
+}
+
+class Live {
+  bool? isLive;
+  String? streamerName;
+  dynamic broadcastStart;
+  dynamic art;
+
+  Live({
+    this.isLive,
+    this.streamerName,
+    this.broadcastStart,
+    this.art,
+  });
+
+  factory Live.fromJson(Map<String, dynamic> json) => Live(
+        isLive: json["is_live"],
+        streamerName: json["streamer_name"],
+        broadcastStart: json["broadcast_start"],
+        art: json["art"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "is_live": isLive,
+        "streamer_name": streamerName,
+        "broadcast_start": broadcastStart,
+        "art": art,
+      };
+}
+
+class NowPlaying {
+  int? shId;
+  int? playedAt;
+  int? duration;
+  Playlist? playlist;
+  String? streamer;
+  bool? isRequest;
+  Song? song;
+  int? elapsed;
+  int? remaining;
+
+  NowPlaying({
+    this.shId,
+    this.playedAt,
+    this.duration,
+    this.playlist,
+    this.streamer,
+    this.isRequest,
+    this.song,
+    this.elapsed,
+    this.remaining,
+  });
+
+  factory NowPlaying.fromJson(Map<String, dynamic> json) => NowPlaying(
+        shId: json["sh_id"],
+        playedAt: json["played_at"],
+        duration: json["duration"],
+        playlist: playlistValues.map[json["playlist"]]!,
+        streamer: json["streamer"],
+        isRequest: json["is_request"],
+        song: json["song"] == null ? null : Song.fromJson(json["song"]),
+        elapsed: json["elapsed"],
+        remaining: json["remaining"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "sh_id": shId,
+        "played_at": playedAt,
+        "duration": duration,
+        "playlist": playlistValues.reverse[playlist],
+        "streamer": streamer,
+        "is_request": isRequest,
+        "song": song?.toJson(),
+        "elapsed": elapsed,
+        "remaining": remaining,
+      };
+}
+
+enum Playlist { ALL }
+
+final playlistValues = EnumValues({"All": Playlist.ALL});
+
+class Song {
+  String? id;
+  String? art;
+  List<dynamic>? customFields;
+  String? text;
+  String? artist;
+  String? title;
+  String? album;
+  String? genre;
+  String? isrc;
+  String? lyrics;
+
+  Song({
+    this.id,
+    this.art,
+    this.customFields,
+    this.text,
+    this.artist,
+    this.title,
+    this.album,
+    this.genre,
+    this.isrc,
+    this.lyrics,
+  });
+
+  factory Song.fromJson(Map<String, dynamic> json) => Song(
+        id: json["id"],
+        art: json["art"],
+        customFields: json["custom_fields"] == null
+            ? []
+            : List<dynamic>.from(json["custom_fields"]!.map((x) => x)),
+        text: json["text"],
+        artist: json["artist"],
+        title: json["title"],
+        album: json["album"],
+        genre: json["genre"],
+        isrc: json["isrc"],
+        lyrics: json["lyrics"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "art": art,
+        "custom_fields": customFields == null
+            ? []
+            : List<dynamic>.from(customFields!.map((x) => x)),
+        "text": text,
+        "artist": artist,
+        "title": title,
+        "album": album,
+        "genre": genre,
+        "isrc": isrc,
+        "lyrics": lyrics,
+      };
+}
+
+class PlayingNext {
+  int? cuedAt;
+  int? playedAt;
+  double? duration;
+  Playlist? playlist;
+  bool? isRequest;
+  Song? song;
+
+  PlayingNext({
+    this.cuedAt,
+    this.playedAt,
+    this.duration,
+    this.playlist,
+    this.isRequest,
+    this.song,
+  });
+
+  factory PlayingNext.fromJson(Map<String, dynamic> json) => PlayingNext(
+        cuedAt: json["cued_at"],
+        playedAt: json["played_at"],
+        duration: json["duration"]?.toDouble(),
+        playlist: playlistValues.map[json["playlist"]]!,
+        isRequest: json["is_request"],
+        song: json["song"] == null ? null : Song.fromJson(json["song"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "cued_at": cuedAt,
+        "played_at": playedAt,
+        "duration": duration,
+        "playlist": playlistValues.reverse[playlist],
+        "is_request": isRequest,
+        "song": song?.toJson(),
+      };
 }
 
 class Station {
@@ -74,91 +267,95 @@ class Station {
   String? description;
   String? frontend;
   String? backend;
+  String? timezone;
   String? listenUrl;
   String? url;
   String? publicPlayerUrl;
   String? playlistPlsUrl;
-  String? playlistM3uUrl;
+  String? playlistM3UUrl;
   bool? isPublic;
-  List<Mounts>? mounts;
-  List<Null>? remotes;
+  List<Mount>? mounts;
+  List<dynamic>? remotes;
   bool? hlsEnabled;
-  Null hlsUrl;
+  bool? hlsIsDefault;
+  dynamic hlsUrl;
   int? hlsListeners;
 
-  Station(
-      {this.id,
-      this.name,
-      this.shortcode,
-      this.description,
-      this.frontend,
-      this.backend,
-      this.listenUrl,
-      this.url,
-      this.publicPlayerUrl,
-      this.playlistPlsUrl,
-      this.playlistM3uUrl,
-      this.isPublic,
-      this.mounts,
-      this.remotes,
-      this.hlsEnabled,
-      this.hlsUrl,
-      this.hlsListeners});
+  Station({
+    this.id,
+    this.name,
+    this.shortcode,
+    this.description,
+    this.frontend,
+    this.backend,
+    this.timezone,
+    this.listenUrl,
+    this.url,
+    this.publicPlayerUrl,
+    this.playlistPlsUrl,
+    this.playlistM3UUrl,
+    this.isPublic,
+    this.mounts,
+    this.remotes,
+    this.hlsEnabled,
+    this.hlsIsDefault,
+    this.hlsUrl,
+    this.hlsListeners,
+  });
 
-  Station.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    shortcode = json['shortcode'];
-    description = json['description'];
-    frontend = json['frontend'];
-    backend = json['backend'];
-    listenUrl = json['listen_url'];
-    url = json['url'];
-    publicPlayerUrl = json['public_player_url'];
-    playlistPlsUrl = json['playlist_pls_url'];
-    playlistM3uUrl = json['playlist_m3u_url'];
-    isPublic = json['is_public'];
-    if (json['mounts'] != null) {
-      mounts = <Mounts>[];
-      json['mounts'].forEach((v) {
-        mounts!.add(new Mounts.fromJson(v));
-      });
-    }
-    if (json['remotes'] != null) {
-      remotes = <Null>[];
-      json['remotes'].forEach((v) {});
-    }
-    hlsEnabled = json['hls_enabled'];
-    hlsUrl = json['hls_url'];
-    hlsListeners = json['hls_listeners'];
-  }
+  factory Station.fromJson(Map<String, dynamic> json) => Station(
+        id: json["id"],
+        name: json["name"],
+        shortcode: json["shortcode"],
+        description: json["description"],
+        frontend: json["frontend"],
+        backend: json["backend"],
+        timezone: json["timezone"],
+        listenUrl: json["listen_url"],
+        url: json["url"],
+        publicPlayerUrl: json["public_player_url"],
+        playlistPlsUrl: json["playlist_pls_url"],
+        playlistM3UUrl: json["playlist_m3u_url"],
+        isPublic: json["is_public"],
+        mounts: json["mounts"] == null
+            ? []
+            : List<Mount>.from(json["mounts"]!.map((x) => Mount.fromJson(x))),
+        remotes: json["remotes"] == null
+            ? []
+            : List<dynamic>.from(json["remotes"]!.map((x) => x)),
+        hlsEnabled: json["hls_enabled"],
+        hlsIsDefault: json["hls_is_default"],
+        hlsUrl: json["hls_url"],
+        hlsListeners: json["hls_listeners"],
+      );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['shortcode'] = this.shortcode;
-    data['description'] = this.description;
-    data['frontend'] = this.frontend;
-    data['backend'] = this.backend;
-    data['listen_url'] = this.listenUrl;
-    data['url'] = this.url;
-    data['public_player_url'] = this.publicPlayerUrl;
-    data['playlist_pls_url'] = this.playlistPlsUrl;
-    data['playlist_m3u_url'] = this.playlistM3uUrl;
-    data['is_public'] = this.isPublic;
-    if (this.mounts != null) {
-      data['mounts'] = this.mounts!.map((v) => v.toJson()).toList();
-    }
-    if (this.remotes != null) {}
-    data['hls_enabled'] = this.hlsEnabled;
-    data['hls_url'] = this.hlsUrl;
-    data['hls_listeners'] = this.hlsListeners;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "shortcode": shortcode,
+        "description": description,
+        "frontend": frontend,
+        "backend": backend,
+        "timezone": timezone,
+        "listen_url": listenUrl,
+        "url": url,
+        "public_player_url": publicPlayerUrl,
+        "playlist_pls_url": playlistPlsUrl,
+        "playlist_m3u_url": playlistM3UUrl,
+        "is_public": isPublic,
+        "mounts": mounts == null
+            ? []
+            : List<dynamic>.from(mounts!.map((x) => x.toJson())),
+        "remotes":
+            remotes == null ? [] : List<dynamic>.from(remotes!.map((x) => x)),
+        "hls_enabled": hlsEnabled,
+        "hls_is_default": hlsIsDefault,
+        "hls_url": hlsUrl,
+        "hls_listeners": hlsListeners,
+      };
 }
 
-class Mounts {
+class Mount {
   int? id;
   String? name;
   String? url;
@@ -168,279 +365,50 @@ class Mounts {
   String? path;
   bool? isDefault;
 
-  Mounts(
-      {this.id,
-      this.name,
-      this.url,
-      this.bitrate,
-      this.format,
-      this.listeners,
-      this.path,
-      this.isDefault});
+  Mount({
+    this.id,
+    this.name,
+    this.url,
+    this.bitrate,
+    this.format,
+    this.listeners,
+    this.path,
+    this.isDefault,
+  });
 
-  Mounts.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    name = json['name'];
-    url = json['url'];
-    bitrate = json['bitrate'];
-    format = json['format'];
-    listeners = json['listeners'] != null
-        ? new Listeners.fromJson(json['listeners'])
-        : null;
-    path = json['path'];
-    isDefault = json['is_default'];
-  }
+  factory Mount.fromJson(Map<String, dynamic> json) => Mount(
+        id: json["id"],
+        name: json["name"],
+        url: json["url"],
+        bitrate: json["bitrate"],
+        format: json["format"],
+        listeners: json["listeners"] == null
+            ? null
+            : Listeners.fromJson(json["listeners"]),
+        path: json["path"],
+        isDefault: json["is_default"],
+      );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['name'] = this.name;
-    data['url'] = this.url;
-    data['bitrate'] = this.bitrate;
-    data['format'] = this.format;
-    if (this.listeners != null) {
-      data['listeners'] = this.listeners!.toJson();
-    }
-    data['path'] = this.path;
-    data['is_default'] = this.isDefault;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "name": name,
+        "url": url,
+        "bitrate": bitrate,
+        "format": format,
+        "listeners": listeners?.toJson(),
+        "path": path,
+        "is_default": isDefault,
+      };
 }
 
-class Listeners {
-  int? total;
-  int? unique;
-  int? current;
+class EnumValues<T> {
+  Map<String, T> map;
+  late Map<T, String> reverseMap;
 
-  Listeners({this.total, this.unique, this.current});
+  EnumValues(this.map);
 
-  Listeners.fromJson(Map<String, dynamic> json) {
-    total = json['total'];
-    unique = json['unique'];
-    current = json['current'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['total'] = this.total;
-    data['unique'] = this.unique;
-    data['current'] = this.current;
-    return data;
-  }
-}
-
-class Live {
-  bool? isLive;
-  String? streamerName;
-  Null broadcastStart;
-  Null art;
-
-  Live({this.isLive, this.streamerName, this.broadcastStart, this.art});
-
-  Live.fromJson(Map<String, dynamic> json) {
-    isLive = json['is_live'];
-    streamerName = json['streamer_name'];
-    broadcastStart = json['broadcast_start'];
-    art = json['art'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['is_live'] = this.isLive;
-    data['streamer_name'] = this.streamerName;
-    data['broadcast_start'] = this.broadcastStart;
-    data['art'] = this.art;
-    return data;
-  }
-}
-
-class NowPlaying {
-  int? shId;
-  int? playedAt;
-  int? duration;
-  String? playlist;
-  String? streamer;
-  bool? isRequest;
-  Song? song;
-  int? elapsed;
-  int? remaining;
-
-  NowPlaying(
-      {this.shId,
-      this.playedAt,
-      this.duration,
-      this.playlist,
-      this.streamer,
-      this.isRequest,
-      this.song,
-      this.elapsed,
-      this.remaining});
-
-  NowPlaying.fromJson(Map<String, dynamic> json) {
-    shId = json['sh_id'];
-    playedAt = json['played_at'];
-    duration = json['duration'];
-    playlist = json['playlist'];
-    streamer = json['streamer'];
-    isRequest = json['is_request'];
-    song = json['song'] != null ? new Song.fromJson(json['song']) : null;
-    elapsed = json['elapsed'];
-    remaining = json['remaining'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['sh_id'] = this.shId;
-    data['played_at'] = this.playedAt;
-    data['duration'] = this.duration;
-    data['playlist'] = this.playlist;
-    data['streamer'] = this.streamer;
-    data['is_request'] = this.isRequest;
-    if (this.song != null) {
-      data['song'] = this.song!.toJson();
-    }
-    data['elapsed'] = this.elapsed;
-    data['remaining'] = this.remaining;
-    return data;
-  }
-}
-
-class Song {
-  String? id;
-  String? text;
-  String? artist;
-  String? title;
-  String? album;
-  String? genre;
-  String? isrc;
-  String? lyrics;
-  String? art;
-  List<Null>? customFields;
-
-  Song(
-      {this.id,
-      this.text,
-      this.artist,
-      this.title,
-      this.album,
-      this.genre,
-      this.isrc,
-      this.lyrics,
-      this.art,
-      this.customFields});
-
-  Song.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-    artist = json['artist'];
-    title = json['title'];
-    album = json['album'];
-    genre = json['genre'];
-    isrc = json['isrc'];
-    lyrics = json['lyrics'];
-    art = json['art'];
-    if (json['custom_fields'] != null) {
-      customFields = <Null>[];
-      json['custom_fields'].forEach((v) {});
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['text'] = this.text;
-    data['artist'] = this.artist;
-    data['title'] = this.title;
-    data['album'] = this.album;
-    data['genre'] = this.genre;
-    data['isrc'] = this.isrc;
-    data['lyrics'] = this.lyrics;
-    data['art'] = this.art;
-    if (this.customFields != null) {
-      data['custom_fields'] = this.customFields!.map((v) {}).toList();
-    }
-    return data;
-  }
-}
-
-class PlayingNext {
-  int? cuedAt;
-  int? playedAt;
-  int? duration;
-  String? playlist;
-  bool? isRequest;
-  Song? song;
-
-  PlayingNext(
-      {this.cuedAt,
-      this.playedAt,
-      this.duration,
-      this.playlist,
-      this.isRequest,
-      this.song});
-
-  PlayingNext.fromJson(Map<String, dynamic> json) {
-    cuedAt = json['cued_at'];
-    playedAt = json['played_at'];
-    duration = json['duration'];
-    playlist = json['playlist'];
-    isRequest = json['is_request'];
-    song = json['song'] != null ? new Song.fromJson(json['song']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['cued_at'] = this.cuedAt;
-    data['played_at'] = this.playedAt;
-    data['duration'] = this.duration;
-    data['playlist'] = this.playlist;
-    data['is_request'] = this.isRequest;
-    if (this.song != null) {
-      data['song'] = this.song!.toJson();
-    }
-    return data;
-  }
-}
-
-class SongHistory {
-  int? shId;
-  int? playedAt;
-  int? duration;
-  String? playlist;
-  String? streamer;
-  bool? isRequest;
-  Song? song;
-
-  SongHistory(
-      {this.shId,
-      this.playedAt,
-      this.duration,
-      this.playlist,
-      this.streamer,
-      this.isRequest,
-      this.song});
-
-  SongHistory.fromJson(Map<String, dynamic> json) {
-    shId = json['sh_id'];
-    playedAt = json['played_at'];
-    duration = json['duration'];
-    playlist = json['playlist'];
-    streamer = json['streamer'];
-    isRequest = json['is_request'];
-    song = json['song'] != null ? new Song.fromJson(json['song']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['sh_id'] = this.shId;
-    data['played_at'] = this.playedAt;
-    data['duration'] = this.duration;
-    data['playlist'] = this.playlist;
-    data['streamer'] = this.streamer;
-    data['is_request'] = this.isRequest;
-    if (this.song != null) {
-      data['song'] = this.song!.toJson();
-    }
-    return data;
+  Map<T, String> get reverse {
+    reverseMap = map.map((k, v) => MapEntry(v, k));
+    return reverseMap;
   }
 }

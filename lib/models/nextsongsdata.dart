@@ -1,66 +1,94 @@
+// To parse this JSON data, do
+//
+//     final nextSongsData = nextSongsDataFromJson(jsonString);
+
+import 'dart:convert';
+
+List<NextSongsData> nextSongsDataFromJson(String str) =>
+    List<NextSongsData>.from(
+        json.decode(str).map((x) => NextSongsData.fromJson(x)));
+
+String nextSongsDataToJson(List<NextSongsData> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
 class NextSongsData {
   int? cuedAt;
   int? playedAt;
-  int? duration;
+  double? duration;
   String? playlist;
   bool? isRequest;
   Song? song;
   bool? sentToAutodj;
   bool? isPlayed;
-  Null autodjCustomUri;
+  dynamic autodjCustomUri;
   List<String>? log;
   Links? links;
 
-  NextSongsData(
-      {this.cuedAt,
-      this.playedAt,
-      this.duration,
-      this.playlist,
-      this.isRequest,
-      this.song,
-      this.sentToAutodj,
-      this.isPlayed,
-      this.autodjCustomUri,
-      this.log,
-      this.links});
+  NextSongsData({
+    this.cuedAt,
+    this.playedAt,
+    this.duration,
+    this.playlist,
+    this.isRequest,
+    this.song,
+    this.sentToAutodj,
+    this.isPlayed,
+    this.autodjCustomUri,
+    this.log,
+    this.links,
+  });
 
-  NextSongsData.fromJson(Map<String, dynamic> json) {
-    cuedAt = json['cued_at'];
-    playedAt = json['played_at'];
-    duration = json['duration'];
-    playlist = json['playlist'];
-    isRequest = json['is_request'];
-    song = json['song'] != null ? new Song.fromJson(json['song']) : null;
-    sentToAutodj = json['sent_to_autodj'];
-    isPlayed = json['is_played'];
-    autodjCustomUri = json['autodj_custom_uri'];
-    log = json['log'].cast<String>();
-    links = json['links'] != null ? new Links.fromJson(json['links']) : null;
-  }
+  factory NextSongsData.fromJson(Map<String, dynamic> json) => NextSongsData(
+        cuedAt: json["cued_at"],
+        playedAt: json["played_at"],
+        duration: json["duration"]?.toDouble(),
+        playlist: json["playlist"],
+        isRequest: json["is_request"],
+        song: json["song"] == null ? null : Song.fromJson(json["song"]),
+        sentToAutodj: json["sent_to_autodj"],
+        isPlayed: json["is_played"],
+        autodjCustomUri: json["autodj_custom_uri"],
+        log: json["log"] == null
+            ? []
+            : List<String>.from(json["log"]!.map((x) => x)),
+        links: json["links"] == null ? null : Links.fromJson(json["links"]),
+      );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['cued_at'] = this.cuedAt;
-    data['played_at'] = this.playedAt;
-    data['duration'] = this.duration;
-    data['playlist'] = this.playlist;
-    data['is_request'] = this.isRequest;
-    if (this.song != null) {
-      data['song'] = this.song!.toJson();
-    }
-    data['sent_to_autodj'] = this.sentToAutodj;
-    data['is_played'] = this.isPlayed;
-    data['autodj_custom_uri'] = this.autodjCustomUri;
-    data['log'] = this.log;
-    if (this.links != null) {
-      data['links'] = this.links!.toJson();
-    }
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "cued_at": cuedAt,
+        "played_at": playedAt,
+        "duration": duration,
+        "playlist": playlist,
+        "is_request": isRequest,
+        "song": song?.toJson(),
+        "sent_to_autodj": sentToAutodj,
+        "is_played": isPlayed,
+        "autodj_custom_uri": autodjCustomUri,
+        "log": log == null ? [] : List<dynamic>.from(log!.map((x) => x)),
+        "links": links?.toJson(),
+      };
+}
+
+class Links {
+  String? self;
+
+  Links({
+    this.self,
+  });
+
+  factory Links.fromJson(Map<String, dynamic> json) => Links(
+        self: json["self"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "self": self,
+      };
 }
 
 class Song {
   String? id;
+  String? art;
+  List<dynamic>? customFields;
   String? text;
   String? artist;
   String? title;
@@ -68,69 +96,47 @@ class Song {
   String? genre;
   String? isrc;
   String? lyrics;
-  String? art;
-  List<Null>? customFields;
 
-  Song(
-      {this.id,
-      this.text,
-      this.artist,
-      this.title,
-      this.album,
-      this.genre,
-      this.isrc,
-      this.lyrics,
-      this.art,
-      this.customFields});
+  Song({
+    this.id,
+    this.art,
+    this.customFields,
+    this.text,
+    this.artist,
+    this.title,
+    this.album,
+    this.genre,
+    this.isrc,
+    this.lyrics,
+  });
 
-  Song.fromJson(Map<String, dynamic> json) {
-    id = json['id'];
-    text = json['text'];
-    artist = json['artist'];
-    title = json['title'];
-    album = json['album'];
-    genre = json['genre'];
-    isrc = json['isrc'];
-    lyrics = json['lyrics'];
-    art = json['art'];
-    if (json['custom_fields'] != null) {
-      customFields = <Null>[];
-      json['custom_fields'].forEach((v) {
-       
-      });
-    }
-  }
+  factory Song.fromJson(Map<String, dynamic> json) => Song(
+        id: json["id"],
+        art: json["art"],
+        customFields: json["custom_fields"] == null
+            ? []
+            : List<dynamic>.from(json["custom_fields"]!.map((x) => x)),
+        text: json["text"],
+        artist: json["artist"],
+        title: json["title"],
+        album: json["album"],
+        genre: json["genre"],
+        isrc: json["isrc"],
+        lyrics: json["lyrics"],
+      );
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['text'] = this.text;
-    data['artist'] = this.artist;
-    data['title'] = this.title;
-    data['album'] = this.album;
-    data['genre'] = this.genre;
-    data['isrc'] = this.isrc;
-    data['lyrics'] = this.lyrics;
-    data['art'] = this.art;
-    if (this.customFields != null) {
-
-    }
-    return data;
-  }
-}
-
-class Links {
-  String? self;
-
-  Links({this.self});
-
-  Links.fromJson(Map<String, dynamic> json) {
-    self = json['self'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['self'] = this.self;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "art": art,
+        "custom_fields": customFields == null
+            ? []
+            : List<dynamic>.from(customFields!.map((x) => x)),
+        "text": text,
+        "artist": artist,
+        "title": title,
+        "album": album,
+        "genre": genre,
+        "isrc": isrc,
+        "lyrics": lyrics,
+      };
 }
