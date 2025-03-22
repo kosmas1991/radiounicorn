@@ -15,7 +15,6 @@ class NextSongsData {
   int? cuedAt;
   int? playedAt;
   double? duration;
-  String? playlist;
   bool? isRequest;
   Song? song;
   bool? sentToAutodj;
@@ -28,7 +27,6 @@ class NextSongsData {
     this.cuedAt,
     this.playedAt,
     this.duration,
-    this.playlist,
     this.isRequest,
     this.song,
     this.sentToAutodj,
@@ -42,7 +40,7 @@ class NextSongsData {
         cuedAt: json["cued_at"],
         playedAt: json["played_at"],
         duration: json["duration"]?.toDouble(),
-        playlist: json["playlist"],
+
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
         sentToAutodj: json["sent_to_autodj"],
@@ -58,7 +56,6 @@ class NextSongsData {
         "cued_at": cuedAt,
         "played_at": playedAt,
         "duration": duration,
-        "playlist": playlist,
         "is_request": isRequest,
         "song": song?.toJson(),
         "sent_to_autodj": sentToAutodj,

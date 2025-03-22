@@ -120,7 +120,6 @@ class NowPlaying {
   int? shId;
   int? playedAt;
   int? duration;
-  Playlist? playlist;
   String? streamer;
   bool? isRequest;
   Song? song;
@@ -131,7 +130,6 @@ class NowPlaying {
     this.shId,
     this.playedAt,
     this.duration,
-    this.playlist,
     this.streamer,
     this.isRequest,
     this.song,
@@ -143,7 +141,6 @@ class NowPlaying {
         shId: json["sh_id"],
         playedAt: json["played_at"],
         duration: json["duration"],
-        playlist: playlistValues.map[json["playlist"]]!,
         streamer: json["streamer"],
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
@@ -155,7 +152,6 @@ class NowPlaying {
         "sh_id": shId,
         "played_at": playedAt,
         "duration": duration,
-        "playlist": playlistValues.reverse[playlist],
         "streamer": streamer,
         "is_request": isRequest,
         "song": song?.toJson(),
@@ -163,10 +159,6 @@ class NowPlaying {
         "remaining": remaining,
       };
 }
-
-enum Playlist { ALL }
-
-final playlistValues = EnumValues({"All": Playlist.ALL});
 
 class Song {
   String? id;
@@ -228,7 +220,6 @@ class PlayingNext {
   int? cuedAt;
   int? playedAt;
   double? duration;
-  Playlist? playlist;
   bool? isRequest;
   Song? song;
 
@@ -236,7 +227,6 @@ class PlayingNext {
     this.cuedAt,
     this.playedAt,
     this.duration,
-    this.playlist,
     this.isRequest,
     this.song,
   });
@@ -245,7 +235,6 @@ class PlayingNext {
         cuedAt: json["cued_at"],
         playedAt: json["played_at"],
         duration: json["duration"]?.toDouble(),
-        playlist: playlistValues.map[json["playlist"]]!,
         isRequest: json["is_request"],
         song: json["song"] == null ? null : Song.fromJson(json["song"]),
       );
@@ -254,7 +243,6 @@ class PlayingNext {
         "cued_at": cuedAt,
         "played_at": playedAt,
         "duration": duration,
-        "playlist": playlistValues.reverse[playlist],
         "is_request": isRequest,
         "song": song?.toJson(),
       };
@@ -399,16 +387,4 @@ class Mount {
         "path": path,
         "is_default": isDefault,
       };
-}
-
-class EnumValues<T> {
-  Map<String, T> map;
-  late Map<T, String> reverseMap;
-
-  EnumValues(this.map);
-
-  Map<T, String> get reverse {
-    reverseMap = map.map((k, v) => MapEntry(v, k));
-    return reverseMap;
-  }
 }
