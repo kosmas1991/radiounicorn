@@ -13,6 +13,7 @@ import 'package:radiounicorn/widgets/play_button_and_volume.dart';
 import 'package:radiounicorn/widgets/radio_title.dart';
 import 'package:radiounicorn/widgets/history_request_next/history_request_next_songs.dart';
 import 'dart:async';
+import 'dart:math';
 
 class Player extends StatefulWidget {
   const Player({super.key});
@@ -28,15 +29,35 @@ class _PlayerState extends State<Player> {
   late Future<MusicData> musicData;
   late Future<List<NextSongsData>> nextSongsData;
   late Future<List<RequestSongData>> reqData;
+
+  int songDuration = 0;
+  int songElapsed = 0;
+  int songRemaining = 0;
+  double progressPercentage = 0.0;
+  Timer? progressTimer;
+
+  DateTime? songStartTime;
+  String? currentSongId;
+  int lastKnownElapsed = 0;
+
   @override
   void initState() {
     super.initState();
     _init();
     musicData = fetchMusicData(theURL, theStationID);
+    musicData.then((data) {
+      _updateSongProgress(data);
+    });
+    _startProgressTimer();
+
     nextSongsData = fetchingNextSongs();
     Timer.periodic(Duration(seconds: 5), (timer) {
       setState(() {
         musicData = fetchMusicData(theURL, theStationID);
+        musicData.then((data) {
+          _updateSongProgress(data);
+        });
+
         nextSongsData = fetchingNextSongs();
       });
     });
@@ -60,8 +81,63 @@ class _PlayerState extends State<Player> {
     await player.play();
   }
 
+  void _updateSongProgress(MusicData data) {
+    if (data.nowPlaying != null) {
+      final newSongId = data.nowPlaying?.song?.id;
+      final serverDuration = data.nowPlaying?.duration ?? 0;
+      final serverElapsed = data.nowPlaying?.elapsed ?? 0;
+
+      setState(() {
+        songDuration = serverDuration;
+        if (currentSongId != newSongId) {
+          currentSongId = newSongId;
+          songStartTime =
+              DateTime.now().subtract(Duration(seconds: serverElapsed));
+          lastKnownElapsed = serverElapsed;
+          songElapsed = serverElapsed;
+          songRemaining = songDuration - songElapsed;
+        } else {
+          if (serverElapsed > lastKnownElapsed) {
+            songStartTime =
+                DateTime.now().subtract(Duration(seconds: serverElapsed));
+            lastKnownElapsed = serverElapsed;
+          }
+          final calculatedElapsed = songStartTime != null
+              ? DateTime.now().difference(songStartTime!).inSeconds
+              : 0;
+
+          songElapsed =
+              max(calculatedElapsed, lastKnownElapsed).clamp(0, songDuration);
+          songRemaining = songDuration - songElapsed;
+        }
+        if (songDuration > 0) {
+          progressPercentage = songElapsed / songDuration;
+        } else {
+          progressPercentage = 0.0;
+        }
+      });
+    }
+  }
+
+  void _startProgressTimer() {
+    progressTimer?.cancel();
+    progressTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (songStartTime != null && songDuration > 0) {
+        setState(() {
+          final calculatedElapsed =
+              DateTime.now().difference(songStartTime!).inSeconds;
+          songElapsed =
+              max(calculatedElapsed, lastKnownElapsed).clamp(0, songDuration);
+          songRemaining = songDuration - songElapsed;
+          progressPercentage = songElapsed / songDuration;
+        });
+      }
+    });
+  }
+
   @override
   void dispose() {
+    progressTimer?.cancel();
     player.dispose();
     super.dispose();
   }
@@ -70,7 +146,6 @@ class _PlayerState extends State<Player> {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-          height: 300,
           width: 600,
           margin: EdgeInsets.all(10),
           decoration: BoxDecoration(
@@ -90,10 +165,18 @@ class _PlayerState extends State<Player> {
               SizedBox(
                 height: 10,
               ),
-              PlayButtonAndVolume(player: player),
-              SizedBox(
-                height: 0,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(5),
+                child: LinearProgressIndicator(
+                  value: progressPercentage,
+                  minHeight: 6,
+                  backgroundColor: Colors.grey[800],
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white70),
+                ),
               ),
+              SizedBox(height: 10),
+              PlayButtonAndVolume(player: player),
+              SizedBox(height: 10),
               SongHistoryAndRequestSongButtons(
                   musicData: musicData,
                   textEditingController: textEditingController,
