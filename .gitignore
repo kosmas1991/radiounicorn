@@ -45,3 +45,14 @@ app.*.map.json
 
 # FVM Version Cache
 .fvm/
+
+# Linux generated files
+linux/flutter/generated_plugin_registrant.*
+linux/flutter/generated_plugins.cmake
+
+# Windows generated files
+windows/flutter/generated_plugin_registrant.*
+windows/flutter/generated_plugins.cmake
+
+# macOS generated file
+macos/flutter/GeneratedPluginRegistrant.swift
