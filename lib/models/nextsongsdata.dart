@@ -25,9 +25,9 @@ class NextSongsData {
       this.links});
 
   NextSongsData.fromJson(Map<String, dynamic> json) {
-    cuedAt = json['cued_at'];
-    playedAt = json['played_at'];
-    duration = json['duration'];
+    cuedAt = json['cued_at'] is int ? json['cued_at'] : (json['cued_at'] as num?)?.toInt();
+    playedAt = json['played_at'] is int ? json['played_at'] : (json['played_at'] as num?)?.toInt();
+    duration = json['duration'] is int ? json['duration'] : (json['duration'] as num?)?.toInt();
     playlist = json['playlist'];
     isRequest = json['is_request'];
     song = json['song'] != null ? new Song.fromJson(json['song']) : null;

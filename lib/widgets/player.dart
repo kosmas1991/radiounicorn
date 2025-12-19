@@ -109,7 +109,7 @@ class _PlayerState extends State<Player> {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        'listening now: ${snapshot.data!.listeners!.current}',
+                        'listening: ${snapshot.data!.listeners!.current}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],

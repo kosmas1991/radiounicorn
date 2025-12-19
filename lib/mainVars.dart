@@ -1,3 +1,3 @@
-const String theURL = 'https://radioserver.gr';
+const String theURL = 'https://azuracast.kog.gr';
 const int theStationID = 1;
 const String stationName = 'unicorn';
