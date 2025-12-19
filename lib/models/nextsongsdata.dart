@@ -25,9 +25,15 @@ class NextSongsData {
       this.links});
 
   NextSongsData.fromJson(Map<String, dynamic> json) {
-    cuedAt = json['cued_at'] is int ? json['cued_at'] : (json['cued_at'] as num?)?.toInt();
-    playedAt = json['played_at'] is int ? json['played_at'] : (json['played_at'] as num?)?.toInt();
-    duration = json['duration'] is int ? json['duration'] : (json['duration'] as num?)?.toInt();
+    cuedAt = json['cued_at'] is int
+        ? json['cued_at']
+        : (json['cued_at'] as num?)?.toInt();
+    playedAt = json['played_at'] is int
+        ? json['played_at']
+        : (json['played_at'] as num?)?.toInt();
+    duration = json['duration'] is int
+        ? json['duration']
+        : (json['duration'] as num?)?.toInt();
     playlist = json['playlist'];
     isRequest = json['is_request'];
     song = json['song'] != null ? new Song.fromJson(json['song']) : null;
@@ -95,9 +101,7 @@ class Song {
     art = json['art'];
     if (json['custom_fields'] != null) {
       customFields = <Null>[];
-      json['custom_fields'].forEach((v) {
-       
-      });
+      json['custom_fields'].forEach((v) {});
     }
   }
 
@@ -112,9 +116,7 @@ class Song {
     data['isrc'] = this.isrc;
     data['lyrics'] = this.lyrics;
     data['art'] = this.art;
-    if (this.customFields != null) {
-
-    }
+    if (this.customFields != null) {}
     return data;
   }
 }

@@ -278,14 +278,22 @@ class NowPlaying {
 
   NowPlaying.fromJson(Map<String, dynamic> json) {
     shId = json['sh_id'];
-    playedAt = json['played_at'] is int ? json['played_at'] : (json['played_at'] as num?)?.toInt();
-    duration = json['duration'] is int ? json['duration'] : (json['duration'] as num?)?.toInt();
+    playedAt = json['played_at'] is int
+        ? json['played_at']
+        : (json['played_at'] as num?)?.toInt();
+    duration = json['duration'] is int
+        ? json['duration']
+        : (json['duration'] as num?)?.toInt();
     playlist = json['playlist'];
     streamer = json['streamer'];
     isRequest = json['is_request'];
     song = json['song'] != null ? new Song.fromJson(json['song']) : null;
-    elapsed = json['elapsed'] is int ? json['elapsed'] : (json['elapsed'] as num?)?.toInt();
-    remaining = json['remaining'] is int ? json['remaining'] : (json['remaining'] as num?)?.toInt();
+    elapsed = json['elapsed'] is int
+        ? json['elapsed']
+        : (json['elapsed'] as num?)?.toInt();
+    remaining = json['remaining'] is int
+        ? json['remaining']
+        : (json['remaining'] as num?)?.toInt();
   }
 
   Map<String, dynamic> toJson() {
@@ -380,9 +388,15 @@ class PlayingNext {
       this.song});
 
   PlayingNext.fromJson(Map<String, dynamic> json) {
-    cuedAt = json['cued_at'] is int ? json['cued_at'] : (json['cued_at'] as num?)?.toInt();
-    playedAt = json['played_at'] is int ? json['played_at'] : (json['played_at'] as num?)?.toInt();
-    duration = json['duration'] is int ? json['duration'] : (json['duration'] as num?)?.toInt();
+    cuedAt = json['cued_at'] is int
+        ? json['cued_at']
+        : (json['cued_at'] as num?)?.toInt();
+    playedAt = json['played_at'] is int
+        ? json['played_at']
+        : (json['played_at'] as num?)?.toInt();
+    duration = json['duration'] is int
+        ? json['duration']
+        : (json['duration'] as num?)?.toInt();
     playlist = json['playlist'];
     isRequest = json['is_request'];
     song = json['song'] != null ? new Song.fromJson(json['song']) : null;
