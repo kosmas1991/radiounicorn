@@ -37,7 +37,7 @@ class RadioTitle extends StatelessWidget {
                       ),
                       SizedBox(width: 5),
                       Text(
-                        'listening now: ${snapshot.data!.listeners!.unique}',
+                        'listening: ${snapshot.data!.listeners!.unique}',
                         style: TextStyle(color: Colors.white),
                       ),
                     ],
